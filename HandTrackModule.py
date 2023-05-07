@@ -1,9 +1,12 @@
+#======================================================Imports====================================================
 import cv2
 import mediapipe as mp
 import time
 import math
 
+#==========================================================Functions==========================================================
 
+#------------------------------------------------------------Initialization-------------------------------------------------------------
 class handDetector():
     def __init__(self, mode=False, maxHands=2, modelComp=1, detectionCon=0.5, trackCon=0.5):
         self.mode = mode
@@ -16,7 +19,9 @@ class handDetector():
         self.hands = self.mpHands.Hands(self.mode, self.maxHands, self.modelComp, self.detectionCon, self.trackCon)
         self.mpDraw = mp.solutions.drawing_utils
         self.tipIds = [4, 8, 12, 16, 20]
-
+        
+#-------------------------------------------------------------Track Hands----------------------------------------------------------
+        
     def findHands(self, img, draw=True):
 
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -27,6 +32,8 @@ class handDetector():
                 if draw:
                     self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS)
         return img
+    
+#-------------------------------------------------------------Find Coordinates of Fist-----------------------------------------------    
 
     def findPosition(self, img, handNo=0, draw=True):
         xList = []
@@ -55,6 +62,8 @@ class handDetector():
                               (bbox[2] + 20, bbox[3] + 20), (0, 255, 0), 2)
 
         return self.lmList, bbox
+    
+#---------------------------------------------------Which fingers are pointed upwards------------------------------------------------
 
     def fingersUp(self):
         fingers = []
@@ -70,6 +79,8 @@ class handDetector():
             else:
                 fingers.append(0)
         return fingers
+    
+#------------------------------------------Distance between two landmarks--------------------------------------------------    
 
     def findDistance(self, p1, p2, img, draw=True):
         x1, y1 = self.lmList[p1][1], self.lmList[p1][2]
@@ -85,7 +96,7 @@ class handDetector():
         length = math.hypot(x2 - x1, y2 - y1)
         return length, img, [x1, y1, x2, y2, cx, cy]
 
-
+#============================================================Processing=======================================================
 try:
     def main():
         pTime = 0
